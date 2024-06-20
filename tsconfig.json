@@ -1,0 +1,35 @@
+{
+	"extends": "expo/tsconfig.base",
+	"exclude": [
+		"node_modules"
+	],
+	"include": [
+		"**/*.js",
+		"**/*.ts",
+		"**/*.tsx",
+		"./expo-env.d.ts",
+		"./src/app.d.ts",
+		".expo/types/**/*.ts",
+		"expo-env.d.ts"
+	],
+	"compilerOptions": {
+		"target": "es2020",
+		"lib": [
+			"ES2020"
+		],
+		"jsx": "react-jsx",
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+ 		"module": "ES2022",
+ 		"paths": {
+			"@/*": [
+				"./src/*"
+			]
+		},
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"strictPropertyInitialization": false,
+		"skipLibCheck": true
+	}
+}
