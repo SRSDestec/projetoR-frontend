@@ -1,17 +1,18 @@
 import { Link } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { View, Text, Button, Alert, ScrollView } from "react-native";
 import { v4 as uuidv4 } from "uuid";
 import Checkbox from "@/components/check-box";
 import InputField from "@/components/input-field";
 import TreeView from "@/components/tree-view";
-import { Structure } from "@/database/types";
+import { Content, Structure } from "@/database/types";
 import useListenerFocus from "@/hooks/useListenerFocus";
 
 export default function(): React.ReactElement {
 	const database = useSQLiteContext();
 	const [listStructures, setListStructures] = useState<Structure[]>([]);
+	const [listContents, setListContents] = useState<Content[]>([]); 
 	const [selectedStructureId, setSelectedStructureId] = useState<string | null>(null);
 	const [formData, setFormData] = useState<Record<string, string | number | boolean>>({});
 	const selectedStructure = useMemo(() => listStructures.find(x => x.id === selectedStructureId), [listStructures, selectedStructureId]);
@@ -22,11 +23,32 @@ export default function(): React.ReactElement {
 		}
 	});
 
+	useEffect(() => {
+		if (selectedStructureId) {
+			const listStructuresFiltered = listStructures.filter(x => x.parentId === selectedStructureId && x.type !== "node");
+			const listContentsFiltered = listContents.filter(x => listStructuresFiltered.some(p => p.id === x.parentId));
+
+			listContentsFiltered.forEach(x => {
+				setFormData(p => ({ ...p, [x.parentId]: x.value }));
+			});
+		}
+	}, [selectedStructureId]);
+
 	async function getData(): Promise<void> {
 		try {
-			const response = await database.getAllAsync<Structure>("SELECT * FROM Structure");
+			const responseStructures = await database.getAllAsync<Structure>("SELECT * FROM Structure");
 
-			setListStructures(response);
+			setListStructures(responseStructures);
+		}
+		catch (error) {
+			// eslint-disable-next-line no-console
+			console.error(error);
+		}
+
+		try {
+			const responseContents = await database.getAllAsync<Content>("SELECT * FROM Content");
+
+			setListContents(responseContents);
 		}
 		catch (error) {
 			// eslint-disable-next-line no-console
@@ -34,7 +56,7 @@ export default function(): React.ReactElement {
 		}
 	}
 	
-	function renderFields (parentNode: Structure): JSX.Element { 
+	function renderFields(parentNode: Structure): JSX.Element { 
 		const children = listStructures.filter(x => x.parentId === parentNode.id && x.type !== "node");
 
 		return (
@@ -70,8 +92,8 @@ export default function(): React.ReactElement {
 									<Checkbox
 										key={id}
 										label={name}
-										value={Boolean(value)}
-										setValue={x => setFormData({ ...formData, [id]: Boolean(x) })}
+										value={value === "True"}
+										setValue={x => setFormData({ ...formData, [id]: x ? "True" : "False" })}
 									/>
 								);
 							default:
@@ -84,7 +106,16 @@ export default function(): React.ReactElement {
 	}
 
 	async function saveData(): Promise<void> {
-		const statementInsert = await database.prepareAsync("INSERT INTO Content (id, parentId, value, createdAt, updatedAt) VALUES ($id, $parentId, $value, $createdAt, $updatedAt)");
+		const statementInsert = await database.prepareAsync(
+			`
+			INSERT INTO Content (id, parentId, value, createdAt, updatedAt)
+			VALUES ($id, $parentId, $value, $createdAt, $updatedAt)
+			ON CONFLICT(parentId)
+			DO UPDATE SET
+				value = $value,
+				updatedAt = $createdAt;
+			`
+		);
 
 		for (const [key, value] of Object.entries(formData)) {
 			const id = uuidv4();
@@ -108,6 +139,7 @@ export default function(): React.ReactElement {
 		await getData();
 
 		setFormData({});
+		setSelectedStructureId(null);
 		
 		Alert.alert("Sucesso", "Conteúdo salvo com sucesso.",
 			[

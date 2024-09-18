@@ -25,7 +25,7 @@ async function initializer(database: SQLiteDatabase, attempt: number): Promise<v
 				`
 				CREATE TABLE IF NOT EXISTS Content (
 					id TEXT PRIMARY KEY NOT NULL,
-					parentId TEXT NOT NULL,
+					parentId TEXT NOT NULL UNIQUE,
 					value TEXT NOT NULL,
 					createdAt TEXT NOT NULL,
 					updatedAt TEXT,
