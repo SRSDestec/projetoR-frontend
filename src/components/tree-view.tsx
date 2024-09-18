@@ -10,6 +10,7 @@ export type TreeViewProps<T> = {
   data: T[];
   selectedId: string | null;
   onSelect: (id: string | null) => void;
+  onFilter?: (item: T) => boolean;
   getId: (item: T) => string;
   getName: (item: T) => string;
   getDescription?: (item: T) => string;
@@ -19,7 +20,7 @@ export type TreeViewProps<T> = {
   renderNode?: (item: T, selectedId: string | null) => JSX.Element;
 };
 
-export default function<T>({ data, selectedId, onSelect, getId, getName, getDescription, getParentId, canSelect, canDeselect, renderNode }: TreeViewProps<T>): JSX.Element {
+export default function<T>({ data, selectedId, onSelect, onFilter, getId, getName, getDescription, getParentId, canSelect, canDeselect, renderNode }: TreeViewProps<T>): JSX.Element {
 	const [listNodes, setListNodes] = useState<TreeNode<T>[]>([]);
 	const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
@@ -85,13 +86,17 @@ export default function<T>({ data, selectedId, onSelect, getId, getName, getDesc
 		UIManager.setLayoutAnimationEnabledExperimental(true);
 	}
 
-	function renderTree(nodes: TreeNode<T>[], level: number): JSX.Element[] {
+	function renderTree(nodes: TreeNode<T>[], level: number): (JSX.Element | null)[] {
 		return nodes.map((node) => {
 			const nodeId = getId(node);
 			const nodeName = getName(node);
 			const nodeDescription = getDescription ? getDescription(node) : null;
 			const isExpanded = expandedNodes.has(nodeId);
-			const hasChildren = node.children && node.children.length > 0;
+			const hasChildren = node.children && node.children.filter(x => !onFilter || onFilter(x)).length > 0; 
+
+			if (onFilter && !onFilter(node)) {
+				return null;
+			}
 
 			return (
 				<View
@@ -157,12 +162,23 @@ export default function<T>({ data, selectedId, onSelect, getId, getName, getDesc
 	}
 
 	return (
-		<ScrollView
-			style={{ flexGrow: 1 }}
-			showsVerticalScrollIndicator={false}
-		>
-			{renderTree(listNodes, 0)}
-		</ScrollView>
+		<>
+			{
+				listNodes.length > 0 ?
+					<ScrollView
+						style={{ flexGrow: 1 }}
+						showsVerticalScrollIndicator={false}
+					>
+						{renderTree(listNodes, 0)}
+					</ScrollView>
+				:
+					<Text
+						style={{ fontStyle: "italic", fontSize: 12 }}
+					>
+						Não existem nenhum valor.
+					</Text>
+			}
+		</>
 	);
 }
 

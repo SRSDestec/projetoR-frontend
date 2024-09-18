@@ -1,11 +1,12 @@
 import { Picker } from "@react-native-picker/picker";
 import { Link } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from "react-native";
 import { v4 as uuidv4 } from "uuid";
 import TreeView from "@/components/tree-view";
 import { Structure, StructureType, StructureTypesValue } from "@/database/types";
+import useListenerFocus from "@/hooks/useListenerFocus";
 
 export default function(): React.ReactElement {
 	const database = useSQLiteContext();
@@ -14,9 +15,11 @@ export default function(): React.ReactElement {
 	const [parentId, setParentId] = useState<string | null>(null);
 	const [listStructures, setListStructures] = useState<Structure[]>([]);
 
-	useEffect(() => {
-		void getData();
-	}, []);
+	useListenerFocus({
+		onFocus: (): void => {
+			void getData();
+		}
+	});
 
 	async function getData(): Promise<void> {
 		try {
@@ -82,7 +85,17 @@ export default function(): React.ReactElement {
 			setType(null);
 			setParentId(null);
 
-			Alert.alert("Sucesso", "Estrutura salva com sucesso.");
+			Alert.alert("Sucesso", "Estrutura salva com sucesso.",
+				[
+					{
+						text: "OK",
+						style: "default"
+					}
+				],
+				{
+					cancelable: true
+				}
+			);
 		}
 		catch (error) {
 			// eslint-disable-next-line no-console
@@ -118,7 +131,7 @@ export default function(): React.ReactElement {
 
 				<Picker
 					selectedValue={type || undefined}
-					onValueChange={(itemValue: StructureType) => setType(itemValue)}
+					onValueChange={setType}
 					style={{ height: 50, width: "100%", marginBottom: 20 }}
 				>
 					{
@@ -153,26 +166,16 @@ export default function(): React.ReactElement {
 					:
 				</Text>
 
-				{
-					listStructures.length > 0 ?
-						<TreeView
-							data={listStructures}
-							selectedId={parentId}
-							onSelect={setParentId}
-							getId={x => x.id}
-							getName={x => x.name}
-							getDescription={x => x.type}
-							getParentId={x => x.parentId}
-							canDeselect={true}
-							// canSelect={x => x.type !== "node"}
-						/>
-					:
-						<Text
-							style={{ fontStyle: "italic", fontSize: 12 }}
-						>
-							Nenhuma estrutura salva.
-						</Text>
-				}
+				<TreeView
+					data={listStructures}
+					selectedId={parentId}
+					onSelect={setParentId}
+					getId={x => x.id}
+					getName={x => x.name}
+					getDescription={x => x.type}
+					getParentId={x => x.parentId}
+					canDeselect={true}
+				/>
 			</View>
 
 			<View
@@ -185,7 +188,7 @@ export default function(): React.ReactElement {
 				/>
 
 				<Link
-					href="(home)/view"
+					href="/home/structure/view"
 					asChild={true}
 				>
 					<Button

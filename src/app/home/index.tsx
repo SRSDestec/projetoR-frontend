@@ -7,8 +7,8 @@ export default function(): React.ReactElement {
 			className="items-center justify-center flex-1"
 		>
 			<TouchableOpacity
-				onPress={() => router.push("(home)/test")}
-				onLongPress={() => void router.push("(home)/add")}
+				onPress={() => router.push("/home/test")}
+				onLongPress={() => void router.push("/home/structure/add")}
 				style={{ padding: 10 }}
 			>
 				<Text>

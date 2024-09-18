@@ -58,7 +58,17 @@ export default function(): React.ReactElement {
 		try {
 			await Clipboard.setStringAsync(JSON.stringify(structure, null, 4));
 	
-			Alert.alert("Sucesso", "Estrutura copiada com sucesso.");
+			Alert.alert("Sucesso", "Estrutura copiada com sucesso.",
+				[
+					{
+						text: "OK",
+						style: "default"
+					}
+				],
+				{
+					cancelable: true
+				}
+			);
 		}
 		catch (error) {
 			// eslint-disable-next-line no-console
@@ -67,12 +77,14 @@ export default function(): React.ReactElement {
 	}
 
 	function buildTree(structures: Structure[], parentId: string | null): Record<string, unknown>[] {
-		const listStructuresFiltered = structures.filter((structure) => structure.parentId === parentId);
-		const listTreeData = listStructuresFiltered.map((node) => ({
-			name: node.name,
-			type: node.type,
-			children: buildTree(structures, node.id)
-		}));
+		const listStructuresFiltered = structures.filter(x => x.parentId === parentId);
+		const listTreeData = listStructuresFiltered.map(x => {
+			return {
+				name: x.name,
+				type: x.type,
+				children: buildTree(structures, x.id)
+			};
+		});
 
 		return listTreeData;
 	}
@@ -108,7 +120,17 @@ export default function(): React.ReactElement {
 			// Copia a string gerada para a área de transferência
 			await Clipboard.setStringAsync(treeViewString);
 
-			Alert.alert("Sucesso", "Dados da árvore copiados para a área de transferência!");
+			Alert.alert("Sucesso", "Dados da árvore copiados para a área de transferência!",
+				[
+					{
+						text: "OK",
+						style: "default"
+					}
+				],
+				{
+					cancelable: true
+				}
+			);
 		}
 		catch (error) {
 			// eslint-disable-next-line no-console
@@ -168,7 +190,7 @@ export default function(): React.ReactElement {
 	function componentEmpty(): React.ReactElement {
 		return (
 			<View
-				style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+				style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: PADDING }}
 			>
 				<Text
 					style={{ fontStyle: "italic", fontSize: 12 }}
@@ -190,7 +212,7 @@ export default function(): React.ReactElement {
 				<Text
 					style={{ fontSize: 20, color: "#FFFFFF" }}
 				>
-					Estruturas Salvas
+					Estruturas
 				</Text>
 				<TouchableOpacity
 					onPress={() => void copyTreeNodeData()}
