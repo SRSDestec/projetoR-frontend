@@ -4,7 +4,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 export default function(): React.ReactElement {
 	return (
 		<View
-			className="items-center justify-center flex-1 gap-2"
+			className="items-center justify-center flex-1"
 		>
 			<TouchableOpacity
 				onPress={() => router.push("(home)/test")}

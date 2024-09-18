@@ -9,7 +9,7 @@ export default function(): React.ReactElement {
 			/>
 
 			<View
-				className="items-center justify-center flex-1 p-5"
+				className="items-center justify-center flex-1"
 			>
 				<Text>
 					{"This screen doesn't exist."}

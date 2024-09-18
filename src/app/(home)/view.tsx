@@ -1,3 +1,4 @@
+import { FontAwesome5 } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
@@ -5,6 +6,7 @@ import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
 import { Structure } from "@/database/types";
 
 export default function(): React.ReactElement {
+	const PADDING = 20;
 	const database = useSQLiteContext();
 	const [listStructures, setListStructures] = useState<Structure[]>([]);
 
@@ -64,10 +66,68 @@ export default function(): React.ReactElement {
 		}
 	}
 
+	function buildTree(structures: Structure[], parentId: string | null): Record<string, unknown>[] {
+		const listStructuresFiltered = structures.filter((structure) => structure.parentId === parentId);
+		const listTreeData = listStructuresFiltered.map((node) => ({
+			name: node.name,
+			type: node.type,
+			children: buildTree(structures, node.id)
+		}));
+
+		return listTreeData;
+	}
+
+	function generateTreeViewString(nodes: Record<string, unknown>[], indent: string): string {
+		let result = "";
+	
+		nodes.forEach((node, index) => {
+			const isLastNode = index === nodes.length - 1;
+			const branch = isLastNode ? "└── " : "├── ";
+			const name = node.name as string;
+			const type = node.type as string;
+			const nodeString = `${indent}${branch}${name} (${type})\n`;
+	
+			result += nodeString;
+	
+			const children = node.children as Record<string, unknown>[];
+			if (children && children.length > 0) {
+				const newIndent = isLastNode ? `${indent}    ` : `${indent}│   `;
+				result += generateTreeViewString(children, newIndent);
+			}
+		});
+	
+		return result;
+	}
+
+	// Função para copiar os dados da árvore formatados para a área de transferência
+	async function copyTreeNodeData(): Promise<void> {
+		try {
+			const treeNodeData = buildTree(listStructures, null);
+			const treeViewString = generateTreeViewString(treeNodeData, "");
+			
+			// Copia a string gerada para a área de transferência
+			await Clipboard.setStringAsync(treeViewString);
+
+			Alert.alert("Sucesso", "Dados da árvore copiados para a área de transferência!");
+		}
+		catch (error) {
+			// eslint-disable-next-line no-console
+			console.error(error);
+		}
+	}
+
 	function componentItem(item: Structure): React.ReactElement {
 		const { id, name, type, parentId, createdAt, updatedAt } = item;
 		const customCreatedAt = new Date(createdAt).toLocaleString();
 		const customUpdatedAt = updatedAt ? new Date(updatedAt).toLocaleString() : "Nenhum";
+		const listRows: Record<string, string> = {
+			"ID": id,
+			"Nome": name,
+			"Tipo": type,
+			"Parent ID": parentId || "Nenhum",
+			"Criado em": customCreatedAt,
+			"Atualizado em": customUpdatedAt
+		};
 
 		return (
 			<TouchableOpacity
@@ -75,29 +135,23 @@ export default function(): React.ReactElement {
 				onLongPress={() => deleteData(item)}
 			>
 				<View>
-					<Text>
-						{`ID: ${id}`}
-					</Text>
-
-					<Text>
-						{`Nome: ${name}`}
-					</Text>
-
-					<Text>
-						{`Tipo: ${type}`}
-					</Text>
-
-					<Text>
-						{`Parent ID: ${parentId || "Nenhum"}`}
-					</Text>
-
-					<Text>
-						{`Created At: ${customCreatedAt}`}
-					</Text>
-
-					<Text>
-						{`Updated At: ${customUpdatedAt}`}
-					</Text>
+					{
+						Object.entries(listRows).map(([x, y]) => {
+							return (
+								<Text
+									key={x}
+									className="font-bold"
+								>
+									{`${x}: `}
+									<Text
+										className="font-normal"
+									>
+										{y}
+									</Text>
+								</Text>
+							);
+						})
+					}
 				</View>
 			</TouchableOpacity>
 		);
@@ -127,23 +181,41 @@ export default function(): React.ReactElement {
 
 	return (
 		<View
-			style={{ padding: 20 }}
+			className="flex-1"
+			style={{ marginTop: PADDING + 5 }}
 		>
-			<Text
-				style={{ fontSize: 20, marginBottom: 10 }}
+			<View
+				className="flex-row justify-center items-center gap-2 py-2 bg-[#1E90FF]"
 			>
-				Estruturas Salvas
-			</Text>
+				<Text
+					style={{ fontSize: 20, color: "#FFFFFF" }}
+				>
+					Estruturas Salvas
+				</Text>
+				<TouchableOpacity
+					onPress={() => void copyTreeNodeData()}
+				>
+					<FontAwesome5
+						name="copy"
+						size={18}
+						color="#FFFFFF"
+					/>
+				</TouchableOpacity>
+			</View>
 
-			<FlatList
-				data={listStructures}
-				showsVerticalScrollIndicator={false}
-				keyExtractor={(item) => item.id}
-				renderItem={({ item }) => componentItem(item)}
-				ItemSeparatorComponent={componentSeparator}
-				contentContainerStyle={{ paddingBottom: 40 }}
-				ListEmptyComponent={componentEmpty}
-			/>
+			<View
+				style={{ paddingHorizontal: PADDING, paddingBottom: PADDING }}
+			>
+				<FlatList
+					data={listStructures}
+					showsVerticalScrollIndicator={false}
+					keyExtractor={(item) => item.id}
+					renderItem={({ item }) => componentItem(item)}
+					ItemSeparatorComponent={componentSeparator}
+					contentContainerStyle={{ paddingBottom: PADDING * 2 }}
+					ListEmptyComponent={componentEmpty}
+				/>
+			</View>
 		</View>
 	);
 }
