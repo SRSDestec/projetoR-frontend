@@ -23,15 +23,15 @@ module.exports = function(api) {
 			"@babel/preset-typescript"
 		],
 		plugins: [
-		// 	[
-		// 		"@babel/plugin-proposal-decorators",
-		// 		{
-		// 			legacy: true
-		// 		}
-		// 	],
-		// 	"@babel/plugin-syntax-jsx",
-		// 	"@babel/transform-react-jsx-source",
-		// 	"babel-plugin-transform-typescript-metadata"
+			[
+				"@babel/plugin-proposal-decorators",
+				{
+					legacy: true
+				}
+			],
+			"@babel/plugin-syntax-jsx",
+			"@babel/transform-react-jsx-source",
+			"babel-plugin-transform-typescript-metadata",
 			"react-native-reanimated/plugin"
 		]
 	};

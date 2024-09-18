@@ -9,6 +9,7 @@ export default function(): React.ReactElement {
 			<TouchableOpacity
 				onPress={() => router.push("(home)/test")}
 				onLongPress={() => void router.push("(home)/add")}
+				style={{ padding: 10 }}
 			>
 				<Text>
 					dlroW olleH

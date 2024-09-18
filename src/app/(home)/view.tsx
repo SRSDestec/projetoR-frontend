@@ -65,7 +65,9 @@ export default function(): React.ReactElement {
 	}
 
 	function componentItem(item: Structure): React.ReactElement {
-		const { id, name, type, parentId } = item;
+		const { id, name, type, parentId, createdAt, updatedAt } = item;
+		const customCreatedAt = new Date(createdAt).toLocaleString();
+		const customUpdatedAt = updatedAt ? new Date(updatedAt).toLocaleString() : "Nenhum";
 
 		return (
 			<TouchableOpacity
@@ -88,6 +90,14 @@ export default function(): React.ReactElement {
 					<Text>
 						{`Parent ID: ${parentId || "Nenhum"}`}
 					</Text>
+
+					<Text>
+						{`Created At: ${customCreatedAt}`}
+					</Text>
+
+					<Text>
+						{`Updated At: ${customUpdatedAt}`}
+					</Text>
 				</View>
 			</TouchableOpacity>
 		);
@@ -98,6 +108,20 @@ export default function(): React.ReactElement {
 			<View
 				style={{ height: 1, backgroundColor: "#CCCCCC", marginVertical: 5 }}
 			/>
+		);
+	}
+
+	function componentEmpty(): React.ReactElement {
+		return (
+			<View
+				style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+			>
+				<Text
+					style={{ fontStyle: "italic", fontSize: 12 }}
+				>
+					Nenhuma estrutura salva.
+				</Text>
+			</View>
 		);
 	}
 
@@ -113,9 +137,12 @@ export default function(): React.ReactElement {
 
 			<FlatList
 				data={listStructures}
+				showsVerticalScrollIndicator={false}
 				keyExtractor={(item) => item.id}
 				renderItem={({ item }) => componentItem(item)}
 				ItemSeparatorComponent={componentSeparator}
+				contentContainerStyle={{ paddingBottom: 40 }}
+				ListEmptyComponent={componentEmpty}
 			/>
 		</View>
 	);

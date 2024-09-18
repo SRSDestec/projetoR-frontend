@@ -1,11 +1,15 @@
-export type Content = {
+type Data = {
 	id: string;
+	createdAt: string;
+	updatedAt: string | null;
+};
+
+export type Content = Data & {
 	parentId: string;
 	value: string;
 };
 
-export type Structure = {
-	id: string;
+export type Structure = Data & {
 	name: string;
 	type: StructureType;
 	parentId: string | null;

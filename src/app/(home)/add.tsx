@@ -40,15 +40,42 @@ export default function(): React.ReactElement {
 		}
 
 		const id = uuidv4();
-		const statement = await database.prepareAsync("INSERT INTO Structure (id, name, type, parentId) VALUES ($id, $name, $type, $parentId)");
+		const statementInsert = await database.prepareAsync("INSERT INTO Structure (id, name, type, parentId, createdAt, updatedAt) VALUES ($id, $name, $type, $parentId, $createdAt, $updatedAt)");
 
 		try {
-			await statement.executeAsync({
+			await statementInsert.executeAsync({
 				"$id": id,
 				"$name": name,
 				"$type": type,
-				"$parentId": parentId || null
+				"$parentId": parentId || null,
+				"$createdAt": new Date().toISOString(),
+				"$updatedAt": null
 			});
+
+			if (parentId) {
+				const structureParent = await database.getFirstAsync<Structure>("SELECT * FROM Structure WHERE id = $parentId", { $parentId: parentId || null });
+
+				if (structureParent && structureParent?.type !== "node") {
+					const statementUpdate = await database.prepareAsync("UPDATE Structure SET type = $type, updatedAt = $updatedAt WHERE id = $id");
+
+					try {
+						await statementUpdate.executeAsync({
+							"$id": parentId,
+							"$type": "node",
+							"$updatedAt": new Date().toISOString()
+						});
+					}
+					catch (error) {
+						// eslint-disable-next-line no-console
+						console.error(error);
+						Alert.alert("Erro", "Falha ao atualizar os dados da estrutura pai.");
+					}
+					finally {
+						await statementUpdate.finalizeAsync();
+					}
+				}
+			}
+
 			await getData();
 
 			setName("");
@@ -63,7 +90,7 @@ export default function(): React.ReactElement {
 			Alert.alert("Erro", "Falha ao salvar os dados.");
 		}
 		finally {
-			await statement.finalizeAsync();
+			await statementInsert.finalizeAsync();
 		}
 	}
 
@@ -71,7 +98,9 @@ export default function(): React.ReactElement {
 		<View
 			className="justify-between flex-1 p-5 mt-5"
 		>
-			<View>
+			<View
+				className="flex-1"
+			>
 				<Text>
 					Nome:
 				</Text>
@@ -138,7 +167,11 @@ export default function(): React.ReactElement {
 							// canSelect={x => x.type !== "node"}
 						/>
 					:
-						<Text>Carregando estruturas...</Text>
+						<Text
+							style={{ fontStyle: "italic", fontSize: 12 }}
+						>
+							Nenhuma estrutura salva.
+						</Text>
 				}
 			</View>
 

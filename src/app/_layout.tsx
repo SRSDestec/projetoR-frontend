@@ -33,7 +33,7 @@ export default function(): React.ReactElement | null {
 			>
 				<SQLiteProvider
 					databaseName={DATABASE_FILENAME}
-					onInit={initializer}
+					onInit={async x => await initializer(x, 0)}
 				>
 					<SafeAreaProvider>
 

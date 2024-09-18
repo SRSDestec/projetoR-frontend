@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Platform, UIManager, LayoutAnimation, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, Platform, UIManager, LayoutAnimation, StyleSheet, ScrollView } from "react-native";
 
 export type TreeNode<T> = T & {
 	children: TreeNode<T>[];
@@ -31,33 +31,31 @@ export default function<T>({ data, selectedId, onSelect, getId, getName, getDesc
 	}, [data]);
 
 	function buildTree(flatData: T[]): TreeNode<T>[] {
-		const idMap = new Map<string, TreeNode<T>>();
 		const tree: TreeNode<T>[] = [];
+		const mapper = new Map<string, TreeNode<T>>();
 	
 		flatData.forEach(item => {
 			const id = getId(item);
 
-			if (!idMap.has(id)) {
-				idMap.set(id, { ...item, children: [] });
+			if (!mapper.has(id)) {
+				mapper.set(id, { ...item, children: [] });
 			}
 		});
 	
 		// Atribuir filhos aos seus respectivos pais
 		flatData.forEach(item => {
 			const parentId = getParentId(item);
-			const node = idMap.get(getId(item));
+			const node = mapper.get(getId(item));
 
 			if (node) {
 				if (parentId) {
-					const parentNode = idMap.get(parentId);
+					const parentNode = mapper.get(parentId);
 
 					if (parentNode) {
 						parentNode.children.push(node);
 					} else {
-						// eslint-disable-next-line no-console
-						console.warn(`Pai com ID ${parentId} não encontrado para o nó ${getName(item)}`);
-
-						tree.push(node); // Se o pai não for encontrado, tratar como raiz
+						// Se o pai não for encontrado, tratar como raiz
+						tree.push(node);
 					}
 				} else {
 					tree.push(node);
@@ -117,7 +115,7 @@ export default function<T>({ data, selectedId, onSelect, getId, getName, getDesc
 								</TouchableOpacity>
 							:
 								<View
-									style={styles.iconPlaceholder}
+									style={styles.iconContainer}
 								/>
 						}
 
@@ -159,32 +157,33 @@ export default function<T>({ data, selectedId, onSelect, getId, getName, getDesc
 	}
 
 	return (
-		<View>
+		<ScrollView
+			style={{ flexGrow: 1 }}
+			showsVerticalScrollIndicator={false}
+		>
 			{renderTree(listNodes, 0)}
-		</View>
+		</ScrollView>
 	);
 }
 
 const styles = StyleSheet.create({
 	nodeContainer: {
 		flexDirection: "row",
-		alignItems: "center"
+		alignItems: "center",
+		gap: 5
 	},
 	iconContainer: {
-		width: 30,
-		height: 30,
-		alignItems: "center",
+		width: 26,
+		height: 26,
+		alignItems: "flex-end",
 		justifyContent: "center"
-	},
-	iconPlaceholder: {
-	  	width: 20
 	},
 	labelContainer: {
 		flex: 1
 	},
 	nodeText: {
 		fontSize: 16,
-		color: "#333"
+		color: "#333333"
 	},
 	selectedNodeText: {
 		fontWeight: "bold",
