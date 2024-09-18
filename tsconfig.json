@@ -7,8 +7,7 @@
 		"**/*.js",
 		"**/*.ts",
 		"**/*.tsx",
-		"./expo-env.d.ts",
-		"./src/app.d.ts",
+		"**/*.d.ts",
 		".expo/types/**/*.ts",
 		"expo-env.d.ts"
 	],
@@ -17,15 +16,15 @@
 		"lib": [
 			"ES2020"
 		],
-		"jsx": "react-jsx",
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
- 		"module": "ES2022",
- 		"paths": {
+		"paths": {
 			"@/*": [
 				"./src/*"
 			]
 		},
+		"jsx": "react-jsx",
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"module": "ES2022",
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,

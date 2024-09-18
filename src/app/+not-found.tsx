@@ -1,6 +1,5 @@
 import { Link, Stack } from "expo-router";
-import ThemedText from "@/components/ThemedText";
-import ThemedView from "@/components/ThemedView";
+import { Text, View } from "react-native";
 
 export default function(): React.ReactElement {
 	return (
@@ -9,26 +8,22 @@ export default function(): React.ReactElement {
 				options={{ title: "Oops!" }}
 			/>
 
-			<ThemedView
-				className="flex-1 justify-center items-center p-5"
+			<View
+				className="items-center justify-center flex-1 p-5"
 			>
-				<ThemedText
-					type="title"
-				>
+				<Text>
 					{"This screen doesn't exist."}
-				</ThemedText>
+				</Text>
 
 				<Link
-					href="/"
-					className="mt-4 px-4"
+					href="(home)/index"
+					className="px-4 mt-4"
 				>
-					<ThemedText
-						type="link"
-					>
+					<Text>
 						Go to home screen!
-					</ThemedText>
+					</Text>
 				</Link>
-			</ThemedView>
+			</View>
 		</>
 	);
 }
