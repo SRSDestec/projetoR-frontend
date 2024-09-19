@@ -15,9 +15,11 @@
 		"lint": "expo lint"
 	},
 	"dependencies": {
-		"@expo/vector-icons": "^14.0.2",
+		"@bacons/expo-router-top-tabs": "^1.0.0",
+		"@expo/vector-icons": "^14.0.3",
 		"@gorhom/bottom-sheet": "^4.6.4",
 		"@react-native-picker/picker": "2.7.5",
+		"@react-navigation/material-top-tabs": "^6.3.0",
 		"@react-navigation/native": "^6.1.18",
 		"@shopify/flash-list": "1.6.4",
 		"@shopify/react-native-skia": "1.2.3",
@@ -43,7 +45,7 @@
 		"expo-location": "~17.0.1",
 		"expo-media-library": "~16.0.5",
 		"expo-network": "~6.0.1",
-		"expo-router": "~3.5.23",
+		"expo-router": "^3.5.18",
 		"expo-sharing": "~12.0.1",
 		"expo-splash-screen": "~0.27.5",
 		"expo-sqlite": "~14.0.6",
@@ -58,12 +60,14 @@
 		"react": "18.2.0",
 		"react-native": "0.74.5",
 		"react-native-blob-util": "^0.19.11",
+		"react-native-collapsible-tab-view": "^8.0.0",
 		"react-native-gesture-handler": "~2.16.1",
 		"react-native-get-random-values": "~1.11.0",
 		"react-native-gifted-charts": "^1.4.41",
 		"react-native-keyboard-aware-scroll-view": "^0.9.5",
 		"react-native-mask-text": "^0.14.2",
 		"react-native-modal": "^13.0.1",
+		"react-native-pager-view": "6.3.0",
 		"react-native-pdf": "^6.7.5",
 		"react-native-popover-view": "^5.1.8",
 		"react-native-reanimated": "~3.10.1",
@@ -72,6 +76,7 @@
 		"react-native-screens": "3.31.1",
 		"react-native-svg": "15.2.0",
 		"react-native-svg-transformer": "^1.5.0",
+		"react-native-tab-view": "^3.5.2",
 		"react-native-vision-camera": "^4.5.3",
 		"react-native-webview": "13.8.6",
 		"react-query": "^3.39.3",
@@ -111,7 +116,9 @@
 		"typescript-eslint": "^8.6.0"
 	},
 	"overrides": {
+		"@react-navigation/material-top-tabs@": "^6.3.0",
 		"eslint": "^9.10.0",
+		"react-native-reanimated": "~3.10.1",
 		"send": "^0.19.0"
 	},
 	"engines": {

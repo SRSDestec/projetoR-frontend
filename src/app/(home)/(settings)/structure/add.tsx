@@ -109,7 +109,7 @@ export default function(): React.ReactElement {
 
 	return (
 		<View
-			className="justify-between flex-1 p-5 mt-5"
+			className="justify-between flex-1 px-5 pb-5"
 		>
 			<View
 				className="flex-1"
@@ -188,7 +188,7 @@ export default function(): React.ReactElement {
 				/>
 
 				<Link
-					href="/home/structure/view"
+					href="/structure/view"
 					asChild={true}
 				>
 					<Button

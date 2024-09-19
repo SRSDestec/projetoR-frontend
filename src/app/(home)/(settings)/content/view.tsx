@@ -75,28 +75,6 @@ export default function(): React.ReactElement {
 		}
 	}
 
-	function generateTreeViewString(nodes: Record<string, unknown>[], indent: string): string {
-		let result = "";
-	
-		nodes.forEach((node, index) => {
-			const isLastNode = index === nodes.length - 1;
-			const branch = isLastNode ? "└── " : "├── ";
-			const name = node.name as string;
-			const type = node.type as string;
-			const nodeString = `${indent}${branch}${name} (${type})\n`;
-	
-			result += nodeString;
-	
-			const children = node.children as Record<string, unknown>[];
-			if (children && children.length > 0) {
-				const newIndent = isLastNode ? `${indent}    ` : `${indent}│   `;
-				result += generateTreeViewString(children, newIndent);
-			}
-		});
-	
-		return result;
-	}
-
 	function componentItem(item: Content): React.ReactElement {
 		const { id, parentId, value, createdAt, updatedAt } = item;
 		const customCreatedAt = new Date(createdAt).toLocaleString();

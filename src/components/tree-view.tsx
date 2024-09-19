@@ -43,7 +43,6 @@ export default function<T>({ data, selectedId, onSelect, onFilter, getId, getNam
 			}
 		});
 	
-		// Atribuir filhos aos seus respectivos pais
 		flatData.forEach(item => {
 			const parentId = getParentId(item);
 			const node = mapper.get(getId(item));
@@ -55,7 +54,6 @@ export default function<T>({ data, selectedId, onSelect, onFilter, getId, getNam
 					if (parentNode) {
 						parentNode.children.push(node);
 					} else {
-						// Se o pai não for encontrado, tratar como raiz
 						tree.push(node);
 					}
 				} else {

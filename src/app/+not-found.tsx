@@ -7,7 +7,7 @@ export default function(): React.ReactElement {
 	useListenerFocus({
 		onFocus: (): void => {
 			if (__DEV__) {
-				router.push("/home/content/add");
+				router.push("/(home)/(settings)/content/add");
 			}
 		}
 	});
@@ -21,7 +21,7 @@ export default function(): React.ReactElement {
 			</Text>
 
 			<Link
-				href="/home"
+				href="/(home)"
 				className="px-4 mt-4"
 			>
 				<Text>

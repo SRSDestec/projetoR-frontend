@@ -4,15 +4,15 @@ import { Text, TouchableOpacity, View } from "react-native";
 export default function(): React.ReactElement {
 	return (
 		<View
-			className="items-center justify-center flex-1"
+			className="items-center justify-center flex-1 bg-red-400"
 		>
 			<TouchableOpacity
-				onPress={() => router.push("/home/test")}
-				onLongPress={() => void router.push("/home/structure/add")}
+				onPress={() => router.canGoBack() && router.back()}
+				onLongPress={() => void router.push("/(home)/(settings)/content/add")}
 				style={{ padding: 10 }}
 			>
 				<Text>
-					dlroW olleH
+					Test
 				</Text>
 			</TouchableOpacity>
 		</View>

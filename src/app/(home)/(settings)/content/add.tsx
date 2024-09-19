@@ -156,10 +156,10 @@ export default function(): React.ReactElement {
 
 	return (
 		<View
-			className="justify-between flex-1 p-5 mt-5"
+			className="justify-between flex-1 px-5 pb-5"
 		>
 			<ScrollView
-				contentContainerStyle={{ padding: 20 }}
+				contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 20 }}
 				showsVerticalScrollIndicator={false}
 			>
 				<Text>
@@ -192,7 +192,7 @@ export default function(): React.ReactElement {
 				/>
 
 				<Link
-					href="/home/content/view"
+					href="/content/view"
 					asChild={true}
 				>
 					<Button
