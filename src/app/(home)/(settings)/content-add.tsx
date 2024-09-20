@@ -8,6 +8,7 @@ import InputField from "@/components/input-field";
 import TreeView from "@/components/tree-view";
 import { Content, Structure } from "@/database/types";
 import useListenerFocus from "@/hooks/useListenerFocus";
+import { PADDING } from "@/utils/constants";
 
 export default function(): React.ReactElement {
 	const database = useSQLiteContext();
@@ -156,13 +157,15 @@ export default function(): React.ReactElement {
 
 	return (
 		<View
-			className="justify-between flex-1 px-5 pb-5"
+			className="justify-between flex-1"
+			style={{ padding: PADDING }}
 		>
 			<ScrollView
-				contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 20 }}
 				showsVerticalScrollIndicator={false}
 			>
-				<Text>
+				<Text
+					className="mb-1 text-base font-bold"
+				>
 					Selecione uma Estrutura:
 				</Text>
 				<TreeView
@@ -192,7 +195,7 @@ export default function(): React.ReactElement {
 				/>
 
 				<Link
-					href="/content/view"
+					href="/content-view"
 					asChild={true}
 				>
 					<Button

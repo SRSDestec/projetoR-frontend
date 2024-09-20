@@ -8,6 +8,10 @@ export default function(): React.ReactElement {
 		>
 			<Tabs.Screen
 				name="index"
+				options={{ href: null }}
+			/>
+			<Tabs.Screen
+				name="grid"
 				options={{
 					title: "Início",
 					tabBarIcon: ({ color }) =>

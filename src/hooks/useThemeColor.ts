@@ -3,7 +3,7 @@
  * https://docs.expo.dev/guides/color-schemes/
  */
 import { useColorScheme } from "react-native";
-import { Colors } from "@/constants/Colors";
+import { Colors } from "@/utils/constants";
 
 type ThemeColor = {
 	light?: string;

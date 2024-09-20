@@ -1,12 +1,14 @@
 import * as Clipboard from "expo-clipboard";
 import { useSQLiteContext } from "expo-sqlite";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
+import Modal, { ModalRefMethods } from "@/components/modal";
 import { Content } from "@/database/types";
+import { PADDING } from "@/utils/constants";
 
 export default function(): React.ReactElement {
-	const PADDING = 20;
 	const database = useSQLiteContext();
+	const modalRef = useRef<ModalRefMethods>(null);
 	const [listContents, setListContents] = useState<Content[]>([]);
 
 	useEffect(() => {
@@ -25,54 +27,47 @@ export default function(): React.ReactElement {
 		}
 	}
 
-	function deleteData(content: Content): void {
-		const { id, value } = content;
+	async function deleteData(content: Content): Promise<void> {
+		const { id } = content;
 
-		Alert.alert("Excluir", `Deseja realmente excluir o conteúdo "${value}"?`, [	
-			{
-				text: "Cancelar",
-				style: "cancel"
-			},
-			{
-				text: "Excluir",
-				style: "destructive",
-				onPress: async (): Promise<void> => {
-					await database.withTransactionAsync(async (): Promise<void> => {
-						try {
-							await database.execAsync(`DELETE FROM Content WHERE id = "${id}"`);
-							await getData();
-						}
-						catch (error) {
-							// eslint-disable-next-line no-console
-							console.error(error);
-							Alert.alert("Erro", "Falha ao excluir o conteúdo.");
-						}
-					});
-				}
+		await database.withTransactionAsync(async (): Promise<void> => {
+			try {
+				await database.execAsync(`DELETE FROM Content WHERE id = "${id}"`);
+				await getData();
 			}
-		]);
+			catch (error) {
+				// eslint-disable-next-line no-console
+				console.error(error);
+				Alert.alert("Erro", "Falha ao excluir o conteúdo.");
+			}
+		});
 	}
 
 	async function copyData(content: Content): Promise<void> {
 		try {
 			await Clipboard.setStringAsync(JSON.stringify(content, null, 4));
-	
-			Alert.alert("Sucesso", "Conteúdo copiado com sucesso.",
-				[
-					{
-						text: "OK",
-						style: "default"
-					}
-				],
-				{
-					cancelable: true
-				}
-			);
 		}
 		catch (error) {
 			// eslint-disable-next-line no-console
 			console.error(error);
 		}
+	}
+
+	function onClickItem(item: Content): void {
+		modalRef.current?.show({
+			data: [
+				{
+					icon: "copy",
+					text: "Copiar dados",
+					action: async (): Promise<void> => await copyData(item)
+				},
+				{
+					icon: "trash",
+					text: "Apagar",
+					action: async (): Promise<void> => await deleteData(item)
+				}
+			]
+		});
 	}
 
 	function componentItem(item: Content): React.ReactElement {
@@ -89,8 +84,7 @@ export default function(): React.ReactElement {
 
 		return (
 			<TouchableOpacity
-				onPress={() => void copyData(item)}
-				onLongPress={() => deleteData(item)}
+				onPress={() => onClickItem(item)}
 			>
 				<View>
 					{
@@ -138,33 +132,38 @@ export default function(): React.ReactElement {
 	}
 
 	return (
-		<View
-			className="flex-1"
-			style={{ marginTop: PADDING + 5 }}
-		>
+		<>
 			<View
-				className="justify-center items-center py-2 bg-[#1E90FF]"
+				className="flex-1"
 			>
-				<Text
-					style={{ fontSize: 20, color: "#FFFFFF" }}
+				<View
+					className="justify-center items-center py-2 bg-[#1E90FF]"
 				>
-					Conteúdos
-				</Text>
+					<Text
+						style={{ fontSize: 20, color: "#FFFFFF" }}
+					>
+						Conteúdos
+					</Text>
+				</View>
+
+				<View
+					style={{ paddingHorizontal: PADDING, paddingBottom: PADDING }}
+				>
+					<FlatList
+						data={listContents}
+						showsVerticalScrollIndicator={false}
+						keyExtractor={x => x.id}
+						renderItem={({ item }) => componentItem(item)}
+						ItemSeparatorComponent={componentSeparator}
+						contentContainerStyle={{ paddingHorizontal: PADDING, paddingBottom: PADDING }}
+						ListEmptyComponent={componentEmpty}
+					/>
+				</View>
 			</View>
 
-			<View
-				style={{ paddingHorizontal: PADDING, paddingBottom: PADDING }}
-			>
-				<FlatList
-					data={listContents}
-					showsVerticalScrollIndicator={false}
-					keyExtractor={(item) => item.id}
-					renderItem={({ item }) => componentItem(item)}
-					ItemSeparatorComponent={componentSeparator}
-					contentContainerStyle={{ paddingBottom: PADDING * 2 }}
-					ListEmptyComponent={componentEmpty}
-				/>
-			</View>
-		</View>
+			<Modal
+				ref={modalRef}
+			/>
+		</>
 	);
 }

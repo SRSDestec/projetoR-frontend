@@ -1,17 +1,7 @@
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { Text, View } from "react-native";
-import useListenerFocus from "@/hooks/useListenerFocus";
 
 export default function(): React.ReactElement {
-
-	useListenerFocus({
-		onFocus: (): void => {
-			if (__DEV__) {
-				router.push("/(home)/(settings)/content/add");
-			}
-		}
-	});
-
 	return (
 		<View
 			className="items-center justify-center flex-1"

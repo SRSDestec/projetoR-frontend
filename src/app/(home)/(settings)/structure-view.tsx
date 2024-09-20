@@ -1,13 +1,15 @@
 import { FontAwesome5 } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { useSQLiteContext } from "expo-sqlite";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
+import Modal, { ModalRefMethods } from "@/components/modal";
 import { Structure } from "@/database/types";
+import { PADDING } from "@/utils/constants";
 
 export default function(): React.ReactElement {
-	const PADDING = 20;
 	const database = useSQLiteContext();
+	const modalRef = useRef<ModalRefMethods>(null);
 	const [listStructures, setListStructures] = useState<Structure[]>([]);
 
 	useEffect(() => {
@@ -26,49 +28,25 @@ export default function(): React.ReactElement {
 		}
 	}
 
-	function deleteData(structure: Structure): void {
-		const { id, name } = structure;
+	async function deleteData(structure: Structure): Promise<void> {
+		const { id } = structure;
 
-		Alert.alert("Excluir", `Deseja realmente excluir a estrutura "${name}"?`, [	
-			{
-				text: "Cancelar",
-				style: "cancel"
-			},
-			{
-				text: "Excluir",
-				style: "destructive",
-				onPress: async (): Promise<void> => {
-					await database.withTransactionAsync(async (): Promise<void> => {
-						try {
-							await database.execAsync(`DELETE FROM Structure WHERE id = "${id}"`);
-							await getData();
-						}
-						catch (error) {
-							// eslint-disable-next-line no-console
-							console.error(error);
-							Alert.alert("Erro", "Falha ao excluir a estrutura.");
-						}
-					});
-				}
+		await database.withTransactionAsync(async (): Promise<void> => {
+			try {
+				await database.execAsync(`DELETE FROM Structure WHERE id = "${id}"`);
+				await getData();
 			}
-		]);
+			catch (error) {
+				// eslint-disable-next-line no-console
+				console.error(error);
+				Alert.alert("Erro", "Falha ao excluir a estrutura.");
+			}
+		});
 	}
 
 	async function copyData(structure: Structure): Promise<void> {
 		try {
 			await Clipboard.setStringAsync(JSON.stringify(structure, null, 4));
-	
-			Alert.alert("Sucesso", "Estrutura copiada com sucesso.",
-				[
-					{
-						text: "OK",
-						style: "default"
-					}
-				],
-				{
-					cancelable: true
-				}
-			);
 		}
 		catch (error) {
 			// eslint-disable-next-line no-console
@@ -138,6 +116,23 @@ export default function(): React.ReactElement {
 		}
 	}
 
+	function onClickItem(item: Structure): void {
+		modalRef.current?.show({
+			data: [
+				{
+					icon: "copy",
+					text: "Copiar dados",
+					action: async (): Promise<void> => await copyData(item)
+				},
+				{
+					icon: "trash",
+					text: "Apagar",
+					action: async (): Promise<void> => await deleteData(item)
+				}
+			]
+		});
+	}
+
 	function componentItem(item: Structure): React.ReactElement {
 		const { id, name, type, parentId, createdAt, updatedAt } = item;
 		const customCreatedAt = new Date(createdAt).toLocaleString();
@@ -153,8 +148,7 @@ export default function(): React.ReactElement {
 
 		return (
 			<TouchableOpacity
-				onPress={() => void copyData(item)}
-				onLongPress={() => deleteData(item)}
+				onPress={() => onClickItem(item)}
 			>
 				<View>
 					{
@@ -202,42 +196,42 @@ export default function(): React.ReactElement {
 	}
 
 	return (
-		<View
-			className="flex-1"
-			style={{ marginTop: PADDING + 5 }}
-		>
+		<>
 			<View
-				className="flex-row justify-center items-center gap-2 py-2 bg-[#1E90FF]"
+				className="flex-1"
 			>
-				<Text
-					style={{ fontSize: 20, color: "#FFFFFF" }}
+				<View
+					className="flex-row justify-center items-center gap-2 py-2 bg-[#1E90FF]"
 				>
-					Estruturas
-				</Text>
-				<TouchableOpacity
-					onPress={() => void copyTreeNodeData()}
-				>
-					<FontAwesome5
-						name="copy"
-						size={18}
-						color="#FFFFFF"
-					/>
-				</TouchableOpacity>
-			</View>
-
-			<View
-				style={{ paddingHorizontal: PADDING, paddingBottom: PADDING }}
-			>
+					<Text
+						style={{ fontSize: 20, color: "#FFFFFF" }}
+					>
+						Estruturas
+					</Text>
+					<TouchableOpacity
+						onPress={() => void copyTreeNodeData()}
+					>
+						<FontAwesome5
+							name="copy"
+							size={18}
+							color="#FFFFFF"
+						/>
+					</TouchableOpacity>
+				</View>
 				<FlatList
 					data={listStructures}
 					showsVerticalScrollIndicator={false}
-					keyExtractor={(item) => item.id}
+					keyExtractor={x => x.id}
 					renderItem={({ item }) => componentItem(item)}
 					ItemSeparatorComponent={componentSeparator}
-					contentContainerStyle={{ paddingBottom: PADDING * 2 }}
+					contentContainerStyle={{ paddingHorizontal: PADDING, paddingBottom: PADDING }}
 					ListEmptyComponent={componentEmpty}
 				/>
 			</View>
-		</View>
+
+			<Modal 
+				ref={modalRef}
+			/>
+		</>
 	);
 }

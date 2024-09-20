@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import TreeView from "@/components/tree-view";
 import { Structure, StructureType, StructureTypesValue } from "@/database/types";
 import useListenerFocus from "@/hooks/useListenerFocus";
+import { PADDING } from "@/utils/constants";
 
 export default function(): React.ReactElement {
 	const database = useSQLiteContext();
@@ -109,30 +110,29 @@ export default function(): React.ReactElement {
 
 	return (
 		<View
-			className="justify-between flex-1 px-5 pb-5"
+			className="justify-between flex-1"
+			style={{ padding: PADDING }}
 		>
 			<View
-				className="flex-1"
+				className="flex-1 mt-1"
 			>
 				<Text>
 					Nome:
 				</Text>
-
 				<TextInput
 					value={name}
 					onChangeText={setName}
 					placeholder="Digite o nome"
-					style={{ borderBottomWidth: 1, marginBottom: 10 }}
+					style={{ borderBottomWidth: 1, marginBottom: PADDING }}
 				/>
 
 				<Text>
 					Tipo:
 				</Text>
-
 				<Picker
 					selectedValue={type || undefined}
 					onValueChange={setType}
-					style={{ height: 50, width: "100%", marginBottom: 20 }}
+					style={{ height: 50, width: "100%", marginBottom: PADDING * 2 }}
 				>
 					{
 						type === null &&
@@ -165,7 +165,6 @@ export default function(): React.ReactElement {
 					</Text>
 					:
 				</Text>
-
 				<TreeView
 					data={listStructures}
 					selectedId={parentId}
@@ -188,7 +187,7 @@ export default function(): React.ReactElement {
 				/>
 
 				<Link
-					href="/structure/view"
+					href="/structure-view"
 					asChild={true}
 				>
 					<Button

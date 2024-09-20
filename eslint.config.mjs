@@ -127,6 +127,7 @@ const config = {
         }],
 
         // eslint
+        "arrow-parens": ["error", "as-needed"],
         "comma-dangle": ["error", "never"],
         "max-len": "off",
         "max-nested-callbacks": ["error", 5],

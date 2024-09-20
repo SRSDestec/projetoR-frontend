@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
+import { PADDING } from "@/utils/constants";
 
 export default function(): React.ReactElement {
 	return (
@@ -8,8 +9,7 @@ export default function(): React.ReactElement {
 		>
 			<TouchableOpacity
 				onPress={() => router.canGoBack() && router.back()}
-				onLongPress={() => void router.push("/(home)/(settings)/content/add")}
-				style={{ padding: 10 }}
+				style={{ padding: PADDING }}
 			>
 				<Text>
 					Test
