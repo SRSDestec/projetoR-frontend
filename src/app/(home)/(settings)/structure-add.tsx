@@ -56,30 +56,6 @@ export default function(): React.ReactElement {
 				"$updatedAt": null
 			});
 
-			if (parentId) {
-				const structureParent = await database.getFirstAsync<Structure>("SELECT * FROM Structure WHERE id = $parentId", { $parentId: parentId || null });
-
-				if (structureParent && structureParent?.type !== "node") {
-					const statementUpdate = await database.prepareAsync("UPDATE Structure SET type = $type, updatedAt = $updatedAt WHERE id = $id");
-
-					try {
-						await statementUpdate.executeAsync({
-							"$id": parentId,
-							"$type": "node",
-							"$updatedAt": new Date().toISOString()
-						});
-					}
-					catch (error) {
-						// eslint-disable-next-line no-console
-						console.error(error);
-						Alert.alert("Erro", "Falha ao atualizar os dados da estrutura pai.");
-					}
-					finally {
-						await statementUpdate.finalizeAsync();
-					}
-				}
-			}
-
 			await getData();
 
 			setName("");
@@ -105,6 +81,16 @@ export default function(): React.ReactElement {
 		}
 		finally {
 			await statementInsert.finalizeAsync();
+		}
+	}
+
+	function onSelectHandler(id: string | null): void {
+		const structure = listStructures.find(x => x.id === id);
+
+		if (structure && structure.type === "node") {
+			setParentId(id);
+		} else {
+			setParentId(null);
 		}
 	}
 
@@ -168,7 +154,8 @@ export default function(): React.ReactElement {
 				<TreeView
 					data={listStructures}
 					selectedId={parentId}
-					onSelect={setParentId}
+					onSelect={onSelectHandler}
+					onDisabled={x => x.type !== "node"}
 					getId={x => x.id}
 					getName={x => x.name}
 					getDescription={x => x.type}

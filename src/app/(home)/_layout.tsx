@@ -4,6 +4,7 @@ import { Tabs } from "expo-router";
 export default function(): React.ReactElement {
 	return (
 		<Tabs
+			initialRouteName="table"
 			screenOptions={{ tabBarActiveTintColor: "blue" }}
 		>
 			<Tabs.Screen
@@ -11,7 +12,7 @@ export default function(): React.ReactElement {
 				options={{ href: null }}
 			/>
 			<Tabs.Screen
-				name="grid"
+				name="table"
 				options={{
 					title: "Início",
 					tabBarIcon: ({ color }) =>

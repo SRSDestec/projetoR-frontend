@@ -1,37 +1,34 @@
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { MaterialTopTabNavigationEventMap, MaterialTopTabNavigationOptions, createMaterialTopTabNavigator} from "@react-navigation/material-top-tabs";
+import { ParamListBase, TabNavigationState } from "@react-navigation/native";
+import { withLayoutContext } from "expo-router";
 import React from "react";
-import contentAdd from "./content-add";
-import contentView from "./content-view";
-import structureAdd from "./structure-add";
-import structureView from "./structure-view";
 
-const { Navigator, Screen } = createMaterialTopTabNavigator();
+const { Navigator } = createMaterialTopTabNavigator();
 
+const MaterialTopTabs = withLayoutContext<MaterialTopTabNavigationOptions, typeof Navigator, TabNavigationState<ParamListBase>, MaterialTopTabNavigationEventMap>(Navigator);
+
+// Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()
 export default function(): React.ReactElement {
 	return (
-		<Navigator
+		<MaterialTopTabs
 			screenOptions={{ tabBarLabelStyle: { fontSize: 12 } }}
 		>
-			<Screen
+			<MaterialTopTabs.Screen
 				name="content-add"
 				options={{ title: "Adicionar Conteúdo" }}
-				component={contentAdd}
 			/>
-			<Screen
+			<MaterialTopTabs.Screen
 				name="content-view"
 				options={{ title: "Ver Conteúdos" }}
-				component={contentView}
 			/>
-			<Screen
+			<MaterialTopTabs.Screen
 				name="structure-add"
 				options={{ title: "Ver Estruturas" }}
-				component={structureAdd}
 			/>
-			<Screen
+			<MaterialTopTabs.Screen
 				name="structure-view"
 				options={{ title: "Adicionar Estrutura" }}
-				component={structureView}
 			/>
-		</Navigator>
+		</MaterialTopTabs>
 	);
 }

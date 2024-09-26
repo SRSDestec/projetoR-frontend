@@ -11,6 +11,7 @@ export type TreeViewProps<T> = {
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   onFilter?: (item: T) => boolean;
+  onDisabled?: (item: T) => boolean;
   getId: (item: T) => string;
   getName: (item: T) => string;
   getDescription?: (item: T) => string;
@@ -20,7 +21,8 @@ export type TreeViewProps<T> = {
   renderNode?: (item: T, selectedId: string | null) => JSX.Element;
 };
 
-export default function<T>({ data, selectedId, onSelect, onFilter, getId, getName, getDescription, getParentId, canSelect, canDeselect, renderNode }: TreeViewProps<T>): JSX.Element {
+export default function<T>({ data, selectedId, onSelect, onFilter, onDisabled, getId, getName, getDescription, getParentId, canSelect, canDeselect, renderNode }: TreeViewProps<T>): JSX.Element {
+	const MARGIN_LEFT = 20;
 	const [listNodes, setListNodes] = useState<TreeNode<T>[]>([]);
 	const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
@@ -84,17 +86,14 @@ export default function<T>({ data, selectedId, onSelect, onFilter, getId, getNam
 		UIManager.setLayoutAnimationEnabledExperimental(true);
 	}
 
-	function renderTree(nodes: TreeNode<T>[], level: number): (JSX.Element | null)[] {
-		return nodes.map((node) => {
-			const nodeId = getId(node);
-			const nodeName = getName(node);
-			const nodeDescription = getDescription ? getDescription(node) : null;
+	function renderTree(nodes: TreeNode<T>[], level: number): JSX.Element[] {
+		return nodes.filter(x => !onFilter || onFilter(x)).map(x => {
+			const nodeId = getId(x);
+			const nodeName = getName(x);
+			const nodeDescription = getDescription ? getDescription(x) : null;
 			const isExpanded = expandedNodes.has(nodeId);
-			const hasChildren = node.children && node.children.filter(x => !onFilter || onFilter(x)).length > 0; 
-
-			if (onFilter && !onFilter(node)) {
-				return null;
-			}
+			const isDisabled = onDisabled && onDisabled(x);
+			const hasChildren = x.children && x.children.filter(x => !onFilter || onFilter(x)).length > 0; 
 
 			return (
 				<View
@@ -102,12 +101,13 @@ export default function<T>({ data, selectedId, onSelect, onFilter, getId, getNam
 					style={{ marginBottom: 5 }}
 				>
 					<View
-						style={[styles.nodeContainer, { marginLeft: level * 20 }]}
+						style={[styles.nodeContainer, { marginLeft: level * MARGIN_LEFT }]}
 					>
 						{
 							hasChildren ?
 								<TouchableOpacity
 									onPress={() => toggleExpand(nodeId)}
+									disabled={isDisabled}
 									style={styles.iconContainer}
 								>
 									<Ionicons
@@ -123,14 +123,15 @@ export default function<T>({ data, selectedId, onSelect, onFilter, getId, getNam
 						}
 
 						{
-							(!canSelect || canSelect(node)) &&
+							(!canSelect || canSelect(x)) &&
 								<TouchableOpacity
 									onPress={() => onSelect(canDeselect !== false && selectedId === nodeId ? null : nodeId)}
+									disabled={isDisabled}
 									style={styles.labelContainer}
 								>
 									{
 										renderNode ?
-											renderNode(node, selectedId)
+											renderNode(x, selectedId)
 										:
 											<Text
 												style={[styles.nodeText, selectedId === nodeId && styles.selectedNodeText]}
@@ -152,7 +153,7 @@ export default function<T>({ data, selectedId, onSelect, onFilter, getId, getNam
 
 					{
 						hasChildren && isExpanded &&
-							renderTree(node.children, level + 1)
+							renderTree(x.children, level + 1)
 					}
 				</View>
 			);
